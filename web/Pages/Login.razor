@@ -1,0 +1,32 @@
+@page "/Login"
+@inject HttpClient HttpClient
+
+<h3 class="text-center">Login</h3>
+
+<div class="flex flex-col justify-center align-center">
+    <label for="username">Username:</label>
+    <input type="text" name="username" @bind="LoginModel.Username"/>
+    <label for="password">Password:</label>
+    <input type="password" name="password" @bind="LoginModel.Password"/>
+    <button @onclick="() => Authenticate()">Login</button>
+</div>
+
+@code {
+    private Models.Login LoginModel = new Models.Login();
+
+    private async Task Authenticate()
+    {
+        var response = await HttpClient.PostAsJsonAsync<Models.Login>("auth/signin", LoginModel);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var loginResponse = response.Content.ReadFromJsonAsync<Models.AuthenticationToken>();
+            Console.WriteLine(loginResponse.Result.Token);
+        }
+        else
+        {
+            
+        }
+    }
+
+}
