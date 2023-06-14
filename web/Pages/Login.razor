@@ -15,18 +15,21 @@
     <link rel="stylesheet" href="bootstrap-5.0.2-dist/css/bootstrap-grid.min.css">
 </head>
 <body>
-<div class="d-flex flex-column align-content-center justify-content-center">
-    <h1 class="text-center">Login</h1>
+<section id="login-form">
+    <h1>Login</h1>
 
-    <div class="d-flex flex-column justify-content-center align-content-center">
-        <label for="username">Username:</label>
-        <input class="form-control" type="text" name="username" @bind="LoginModel.Username"/>
-        <label for="password">Password:</label>
-        <input class="form-control" type="password" name="password" @bind="LoginModel.Password"/>
-        <button @onclick="() => Authenticate()">Login</button>
-    </div>
-</div>
-<script src="scripts/bootstrap.js"></script>
+    <form>
+        <div class="input-field">
+            <label for="username">Username:</label>
+            <input class="input rounded-sm" type="text" name="username" @bind="LoginModel.Username"/>
+        </div>
+        <div class="input-field">
+            <label for="password">Password:</label>
+            <input class="input rounded-sm" type="password" name="password" @bind="LoginModel.Password"/>
+        </div>
+        <button @onclick="() => Authenticate()" class="btn rounded-sm" data-style="primary">Login</button>
+    </form>
+</section>
 </body>
 </html>
 
