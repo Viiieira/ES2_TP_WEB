@@ -1,34 +1,31 @@
 @page "/Login"
-@using web.Models
 @inject HttpClient HttpClient
 
-<section id="login-form">
-    <h1>Login</h1>
-    
-    <form>
-        <div class="input-field">
-            <label for="username">Username:</label>
-            <input class="input rounded-sm" type="text" name="username" @bind="LoginModel.Username"/>
-        </div>
-        <div class="input-field">
-            <label for="password">Password:</label>
-            <input class="input rounded-sm" type="password" name="password" @bind="LoginModel.Password"/>
-        </div>
-        <button @onclick="() => Authenticate()" class="btn rounded-sm" data-style="primary">Login</button>
-    </form>
-</section>
+<h3 class="text-center">Login</h3>
+
+<div class="flex flex-col justify-center align-center">
+    <label for="username">Username:</label>
+    <input type="text" name="username" @bind="LoginModel.Username"/>
+    <label for="password">Password:</label>
+    <input type="password" name="password" @bind="LoginModel.Password"/>
+    <button @onclick="() => Authenticate()">Login</button>
+</div>
 
 @code {
-    private readonly Models.Login LoginModel = new();
+    private Models.Login LoginModel = new Models.Login();
 
     private async Task Authenticate()
     {
-        var response = await HttpClient.PostAsJsonAsync("auth/signin", LoginModel);
+        var response = await HttpClient.PostAsJsonAsync<Models.Login>("auth/signin", LoginModel);
 
         if (response.IsSuccessStatusCode)
         {
-            var loginResponse = response.Content.ReadFromJsonAsync<AuthenticationToken>();
+            var loginResponse = response.Content.ReadFromJsonAsync<Models.AuthenticationToken>();
             Console.WriteLine(loginResponse.Result.Token);
+        }
+        else
+        {
+            
         }
     }
 
