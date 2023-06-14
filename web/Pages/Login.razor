@@ -1,15 +1,34 @@
 @page "/Login"
+@using Microsoft.AspNetCore.Http
+@using web.Models
 @inject HttpClient HttpClient
+@inject IHttpContextAccessor httpContextAccessor
+@inject NavigationManager NavManager
 
-<h3 class="text-center">Login</h3>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="bootstrap-5.0.2-dist/css/bootstrap-grid.min.css">
+</head>
+<body>
+<div class="d-flex flex-column align-content-center justify-content-center">
+    <h1 class="text-center">Login</h1>
 
-<div class="flex flex-col justify-center align-center">
-    <label for="username">Username:</label>
-    <input type="text" name="username" @bind="LoginModel.Username"/>
-    <label for="password">Password:</label>
-    <input type="password" name="password" @bind="LoginModel.Password"/>
-    <button @onclick="() => Authenticate()">Login</button>
+    <div class="d-flex flex-column justify-content-center align-content-center">
+        <label for="username">Username:</label>
+        <input class="form-control" type="text" name="username" @bind="LoginModel.Username"/>
+        <label for="password">Password:</label>
+        <input class="form-control" type="password" name="password" @bind="LoginModel.Password"/>
+        <button @onclick="() => Authenticate()">Login</button>
+    </div>
 </div>
+<script src="scripts/bootstrap.js"></script>
+</body>
+</html>
 
 @code {
     private Models.Login LoginModel = new Models.Login();
@@ -21,11 +40,25 @@
         if (response.IsSuccessStatusCode)
         {
             var loginResponse = response.Content.ReadFromJsonAsync<Models.AuthenticationToken>();
-            Console.WriteLine(loginResponse.Result.Token);
+            AuthenticationToken login = new AuthenticationToken()
+            {
+                UserId = loginResponse.Result.UserId,
+                Role = loginResponse.Result.Role,
+                Token = loginResponse.Result.Token,
+                Username = loginResponse.Result.Username
+            };
+
+            if (loginResponse is not null)
+            {
+                httpContextAccessor.HttpContext.Session.SetString("id", login.UserId.ToString());
+                httpContextAccessor.HttpContext.Session.SetString("role", login.Role);
+                httpContextAccessor.HttpContext.Session.SetString("token", login.Token);
+                httpContextAccessor.HttpContext.Session.SetString("username", login.Username);
+                NavManager.NavigateTo("/welcomePage");
+            }
         }
         else
         {
-            
         }
     }
 

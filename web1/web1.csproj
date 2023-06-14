@@ -6,12 +6,4 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\bootstrap-5.0.2-dist\js\" />
-    </ItemGroup>
-
 </Project>
