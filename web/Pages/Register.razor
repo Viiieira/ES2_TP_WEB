@@ -1,0 +1,75 @@
+@page "/Register"
+
+<div id="user-form-wrapper">
+    <h1>Register</h1>
+    <form>
+        <div class="input-field">
+            <label for="username">
+                Username <span class="required">*</span>
+            </label>
+            <input type="text" name="username" id="username" required autofocus />
+        </div>
+        <div class="input-field">
+            <label for="email">
+                E-mail <span class="required">*</span>
+            </label>
+            <input type="email" name="email" id="email">
+        </div>
+        <div class="input-field-group">
+            <div class="input-field">
+                <label for="first-name">
+                    First Name <span class="required">*</span>
+                </label>
+                <input type="text" name="first-name" id="first-name" required />
+            </div>
+            <div class="input-field">
+                <label for="last-name">
+                    Last Name <span class="required">*</span>
+                </label>
+                <input type="text" name="last-name" id="last-name" required />
+            </div>
+        </div>
+        <div class="input-field-group">
+            <div class="input-field">
+                <label for="country">Country <span class="required">*</span></label>
+                <input type="text" name="country" id="country" required/>
+            </div>
+            <div class="input-field">
+                <label for="city">City <span class="required">*</span></label>
+                <input type="text" name="city" id="city" required/>
+            </div>
+        </div>
+        <div class="input-field-group">
+            <div class="input-field">
+                <label for="pwd">
+                    Password <span class="required">*</span>
+                </label>
+                <div class="pwd-group">
+                    <input type="password" name="pwd" id="pwd" required />
+                    <i class="fa-solid fa-eye" onclick="togglePasswordVisibility(this)"></i>
+                </div>
+            </div>
+            <div class="input-field">
+                <label for="conf-pwd">
+                    Confirm Password <span class="required">*</span>
+                </label>
+                <div class="pwd-group">
+                    <input type="password" name="conf-pwd" id="conf-pwd" required />
+                    <i class="fa-solid fa-eye" onclick="togglePasswordVisibility(this)"></i>
+                </div>
+            </div>
+        </div>
+        <div class="login-response small">
+            <p data-status="success">Login data is correct</p>
+            <p data-status="error">Login data is incorrect</p>
+        </div>
+        <button class="btn" data-style="primary" type="submit">
+            Create Account
+        </button>
+    </form>
+    <div class="redirect-link">
+        <p class="small">
+            Already have an account? <a href="/login">Login</a>
+        </p>
+    </div>
+</div>

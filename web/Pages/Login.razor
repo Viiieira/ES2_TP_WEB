@@ -5,45 +5,45 @@
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavManager
 
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="bootstrap-5.0.2-dist/css/bootstrap-grid.min.css">
-</head>
-<body>
-<section id="login-form">
+<div id="user-form-wrapper">
     <h1>Login</h1>
-
     <form>
         <div class="input-field">
-            <label for="username">Username:</label>
-            <input class="input rounded-sm" type="text" name="username" @bind="LoginModel.Username"/>
+            <label for="username-field">
+                Username <span class="required">*</span>
+            </label>
+            <input type="text" name="username" id="username-field" @bind="LoginModel.Username" required autofocus/>
         </div>
         <div class="input-field">
-            <label for="password">Password:</label>
-            <input class="input rounded-sm" type="password" name="password" @bind="LoginModel.Password"/>
+            <label for="pwd-field">
+                Password <span class="required">*</span>
+            </label>
+            <div class="pwd-group">
+                <input type="password" name="pwd" id="pwd-field" @bind="LoginModel.Password" required/>
+                <i class="fa-solid fa-eye" onclick="togglePasswordVisibility(this)"></i>
+            </div>
         </div>
-        <button @onclick="() => Authenticate()" class="btn rounded-sm" data-style="primary">Login</button>
+        <div class="login-response small"></div>
+        <button @onclick="() => Authenticate()" class="btn" data-style="primary" type="submit">Enter</button>
     </form>
-</section>
-</body>
-</html>
+    <div class="redirect-link">
+        <p class="small">
+            Don't have an account? <a href="/register">Register</a>
+        </p>
+    </div>
+</div>
 
 @code {
-    private Models.Login LoginModel = new Models.Login();
+    private readonly Models.Login LoginModel = new();
 
     private async Task Authenticate()
     {
-        var response = await HttpClient.PostAsJsonAsync<Models.Login>("auth/signin", LoginModel);
+        var response = await HttpClient.PostAsJsonAsync("auth/signin", LoginModel);
 
         if (response.IsSuccessStatusCode)
         {
-            var loginResponse = response.Content.ReadFromJsonAsync<Models.AuthenticationToken>();
-            AuthenticationToken login = new AuthenticationToken()
+            var loginResponse = response.Content.ReadFromJsonAsync<AuthenticationToken>();
+            var login = new AuthenticationToken
             {
                 UserId = loginResponse.Result.UserId,
                 Role = loginResponse.Result.Role,
@@ -59,9 +59,6 @@
                 httpContextAccessor.HttpContext.Session.SetString("username", login.Username);
                 NavManager.NavigateTo("/welcomePage");
             }
-        }
-        else
-        {
         }
     }
 
