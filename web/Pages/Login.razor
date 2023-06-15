@@ -1,9 +1,7 @@
-@page "/Login"
-@using Microsoft.AspNetCore.Http
-@using web.Models
-@inject HttpClient HttpClient
-@inject IHttpContextAccessor httpContextAccessor
-@inject NavigationManager NavManager
+@page "/"
+@using web.Services.Http.Auth
+@using AuthenticationToken = web.Models.AuthenticationToken
+@inject IAuthClient AuthClient
 
 <div id="user-form-wrapper">
     <h1>Login</h1>
@@ -34,32 +32,35 @@
 </div>
 
 @code {
-    private readonly Models.Login LoginModel = new();
+    private Models.Login LoginModel = new Models.Login();
 
     private async Task Authenticate()
     {
-        var response = await HttpClient.PostAsJsonAsync("auth/signin", LoginModel);
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var loginResponse = response.Content.ReadFromJsonAsync<AuthenticationToken>();
-            var login = new AuthenticationToken
-            {
-                UserId = loginResponse.Result.UserId,
-                Role = loginResponse.Result.Role,
-                Token = loginResponse.Result.Token,
-                Username = loginResponse.Result.Username
-            };
+            var loginResponse = await AuthClient.SignIn(LoginModel);
 
             if (loginResponse is not null)
             {
-                httpContextAccessor.HttpContext.Session.SetString("id", login.UserId.ToString());
-                httpContextAccessor.HttpContext.Session.SetString("role", login.Role);
-                httpContextAccessor.HttpContext.Session.SetString("token", login.Token);
-                httpContextAccessor.HttpContext.Session.SetString("username", login.Username);
-                NavManager.NavigateTo("/welcomePage");
+                var user = new AuthenticationToken()
+                {
+                    Token = loginResponse.Token,
+                    Username = loginResponse.Username,
+                    UserId = loginResponse.UserId,
+                    Role = loginResponse.Role
+                };
+               
+            }
+            else
+            {
+                Console.WriteLine("Login não foi efetuado com sucesso!");
             }
         }
+        catch
+            (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
-
 }
