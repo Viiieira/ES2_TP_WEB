@@ -1,8 +1,8 @@
-@page "/Login"
-@using Microsoft.AspNetCore.Http
-@using web.Models
-@inject HttpClient HttpClient
-@inject IHttpContextAccessor httpContextAccessor
+@page "/"
+@using web.Services.Http.Auth
+@using AuthenticationToken = web.Models.AuthenticationToken
+@inject IAuthClient AuthClient
+@inject ISessionStorageService StorageService
 @inject NavigationManager NavManager
 
 <!doctype html>
@@ -38,30 +38,44 @@
 
     private async Task Authenticate()
     {
-        var response = await HttpClient.PostAsJsonAsync<Models.Login>("auth/signin", LoginModel);
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var loginResponse = response.Content.ReadFromJsonAsync<Models.AuthenticationToken>();
-            AuthenticationToken login = new AuthenticationToken()
-            {
-                UserId = loginResponse.Result.UserId,
-                Role = loginResponse.Result.Role,
-                Token = loginResponse.Result.Token,
-                Username = loginResponse.Result.Username
-            };
+            var loginResponse = await AuthClient.SignIn(LoginModel);
 
             if (loginResponse is not null)
             {
-                httpContextAccessor.HttpContext.Session.SetString("id", login.UserId.ToString());
-                httpContextAccessor.HttpContext.Session.SetString("role", login.Role);
-                httpContextAccessor.HttpContext.Session.SetString("token", login.Token);
-                httpContextAccessor.HttpContext.Session.SetString("username", login.Username);
-                NavManager.NavigateTo("/welcomePage");
+                var user = new AuthenticationToken()
+                {
+                    Token = loginResponse.Token,
+                    Username = loginResponse.Username,
+                    UserId = loginResponse.UserId,
+                    Role = loginResponse.Role
+                };
+               
+            }
+            else
+            {
+                Console.WriteLine("Login não foi efetuado com sucesso!");
             }
         }
-        else
+        catch
+            (Exception e)
         {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    protected override async Task OnInitializedAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var loggedUser = await .GetItemAsync<AuthenticationToken>("User");
+
+            if (loggedUser is not null)
+            {
+                NavManager.NavigateTo("/welcomepage");
+            } 
         }
     }
 
