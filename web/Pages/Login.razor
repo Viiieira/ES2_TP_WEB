@@ -65,18 +65,4 @@
             throw;
         }
     }
-
-    protected override async Task OnInitializedAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var loggedUser = await .GetItemAsync<AuthenticationToken>("User");
-
-            if (loggedUser is not null)
-            {
-                NavManager.NavigateTo("/welcomepage");
-            } 
-        }
-    }
-
 }
