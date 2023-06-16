@@ -1,7 +1,11 @@
 @page "/"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using web.Models
 @using web.Services.Http.Auth
-@using AuthenticationToken = web.Models.AuthenticationToken
 @inject IAuthClient AuthClient
+@inject ProtectedSessionStorage SessionStorage
+@inject NavigationManager NavManager
+
 
 <div id="user-form-wrapper">
     <h1>Login</h1>
@@ -33,6 +37,7 @@
 
 @code {
     private Models.Login LoginModel = new Models.Login();
+    private AuthenticationToken user = new AuthenticationToken();
 
     private async Task Authenticate()
     {
@@ -42,7 +47,8 @@
 
             if (loginResponse is not null)
             {
-                var user = new AuthenticationToken()
+   
+                user = new AuthenticationToken()
                 {
                     Token = loginResponse.Token,
                     Username = loginResponse.Username,
@@ -50,6 +56,9 @@
                     Role = loginResponse.Role
                 };
                
+
+                await SetUserAsync();
+                NavManager.NavigateTo("/welcomepage", true);
             }
             else
             {
@@ -62,5 +71,35 @@
             Console.WriteLine(e);
             throw;
         }
+    }   
+  
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var loadedUser = await LoadStateAsync();
+            if (loadedUser is not null)
+            {
+                NavManager.NavigateTo("/welcomepage", true);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task<AuthenticationToken> LoadStateAsync()
+    {
+        var result = await SessionStorage.GetAsync<AuthenticationToken>("User");
+        if (result.Success && !result.Value.UserId.Equals(0))
+        {
+            return result.Value;
+        }
+        return null;
+    }
+
+    private async Task SetUserAsync()
+    {
+        await SessionStorage.SetAsync("User", user);
     }
 }
