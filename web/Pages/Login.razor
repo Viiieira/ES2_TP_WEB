@@ -70,7 +70,7 @@
             throw;
         }
     }
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -99,5 +99,4 @@
     {
         await SessionStorage.SetAsync("User", user);
     }
-
 }
