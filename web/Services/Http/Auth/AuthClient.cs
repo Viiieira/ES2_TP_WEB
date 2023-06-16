@@ -16,7 +16,7 @@ public class AuthClient : IAuthClient
 
     public async Task<Models.AuthenticationToken> SignIn(Login loginModel)
     {
-        var response = await _httpClient.PostAsJsonAsync<Models.Login>(apiUrl + "signin/", loginModel);
+        var response = await _httpClient.PostAsJsonAsync<Models.Login>(apiUrl + "SignIn/", loginModel);
         if (response is not null && response.IsSuccessStatusCode)
         {
             var loginResponse = await response.Content.ReadFromJsonAsync<Models.AuthenticationToken>();
@@ -28,13 +28,15 @@ public class AuthClient : IAuthClient
 
     public async Task<Error> SignUp(User userModel)
     {
-        var response = await _httpClient.PostAsJsonAsync<Models.User>(apiUrl + "signup/", userModel);
-        if (response is not null && response.IsSuccessStatusCode)
+        var response = await _httpClient.PostAsJsonAsync<Models.User>(apiUrl + "SignUp/", userModel);
+        if (response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+        else
         {
             var loginResponse = await response.Content.ReadFromJsonAsync<Error>();
             return loginResponse;
         }
-
-        return null;
     }
 }
