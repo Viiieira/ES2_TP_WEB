@@ -1,6 +1,42 @@
-@page "/welcomepage"
-<h3>WelcomePage</h3>
+@page "/"
+@using web.Services.Session
+@inject NavigationManager NavManager
+@inject ISession SessionStorage
+
+
+<h1 class="text-center">WelcomePage</h1>
+<form @onsubmit="() => LogOut()">
+    <button class="btn" data-style="primary" type="submit">
+        Logout
+    </button>
+</form>
 
 @code {
-    
+
+    private async void LogOut()
+    {
+        await SessionStorage.DeleteStateAsync();
+        NavManager.NavigateTo("/login");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var loadedUser = await SessionStorage.LoadStateAsync();
+            if (loadedUser is null)
+            {
+                NavManager.NavigateTo("/Login", true);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+
+    private async void DeleteAsync()
+    {
+        await SessionStorage.DeleteStateAsync();
+    }
+
 }

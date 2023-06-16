@@ -1,15 +1,15 @@
-@page "/"
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@page "/login"
 @using web.Models
 @using web.Services.Http.Auth
+@using web.Services.Session
 @inject IAuthClient AuthClient
-@inject ProtectedSessionStorage SessionStorage
+@inject ISession SessionStorage
 @inject NavigationManager NavManager
 
 
 <div id="user-form-wrapper">
     <h1>Login</h1>
-    <form>
+    <form @onsubmit="() => Authenticate()">
         <div class="input-field">
             <label for="username-field">
                 Username <span class="required">*</span>
@@ -26,18 +26,32 @@
             </div>
         </div>
         <div class="login-response small"></div>
-        <button @onclick="() => Authenticate()" class="btn" data-style="primary" type="submit">Enter</button>
+        <button class="btn" data-style="primary" type="submit">Enter</button>
     </form>
     <div class="redirect-link">
         <p class="small">
             Don't have an account? <a href="/register">Register</a>
         </p>
     </div>
+    <div class="flex-column">
+        <p class="small">
+            @LoginMessage
+        </p>
+    </div>
 </div>
 
 @code {
-    private Models.Login LoginModel = new Models.Login();
-    private AuthenticationToken user = new AuthenticationToken();
+    private Models.Login LoginModel;
+    private AuthenticationToken User;
+    private string LoginMessage;
+
+    protected override Task OnInitializedAsync()
+    {
+        LoginModel = new Models.Login();
+        User = new AuthenticationToken();
+        LoginMessage = "";
+        return base.OnInitializedAsync();
+    }
 
     private async Task Authenticate()
     {
@@ -47,22 +61,21 @@
 
             if (loginResponse is not null)
             {
-   
-                user = new AuthenticationToken()
+                User = new AuthenticationToken()
                 {
                     Token = loginResponse.Token,
                     Username = loginResponse.Username,
                     UserId = loginResponse.UserId,
                     Role = loginResponse.Role
                 };
-               
 
-                await SetUserAsync();
-                NavManager.NavigateTo("/welcomepage", true);
+
+                await SetUserAsync(User);
+                NavManager.NavigateTo("/", true);
             }
             else
             {
-                Console.WriteLine("Login não foi efetuado com sucesso!");
+                LoginMessage = "Username or password do not match!";
             }
         }
         catch
@@ -71,35 +84,27 @@
             Console.WriteLine(e);
             throw;
         }
-    }   
-  
-    
+    }
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var loadedUser = await LoadStateAsync();
+            var loadedUser = await SessionStorage.LoadStateAsync();
             if (loadedUser is not null)
             {
-                NavManager.NavigateTo("/welcomepage", true);
+                NavManager.NavigateTo("/", true);
             }
 
             StateHasChanged();
         }
     }
-
-    private async Task<AuthenticationToken> LoadStateAsync()
+    
+    
+    private async Task SetUserAsync(AuthenticationToken user)
     {
-        var result = await SessionStorage.GetAsync<AuthenticationToken>("User");
-        if (result.Success && !result.Value.UserId.Equals(0))
-        {
-            return result.Value;
-        }
-        return null;
+        await SessionStorage.SetStateAsync(user);
     }
 
-    private async Task SetUserAsync()
-    {
-        await SessionStorage.SetAsync("User", user);
-    }
 }

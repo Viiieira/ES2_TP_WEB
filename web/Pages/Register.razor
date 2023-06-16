@@ -1,17 +1,20 @@
-@page "/Register"
+@page "/register"
 @using web.Services.Http.Auth
 @using web.Models
+@using web.Models.Enums
+@using Microsoft.IdentityModel.Tokens
 @inject IAuthClient AuthClient
+@inject NavigationManager NavManager
 
 
 <div id="user-form-wrapper">
     <h1>Register</h1>
-    <form>
+    <form @onsubmit="() => CreateAccount()">
         <div class="input-field">
             <label for="username">
                 Username <span class="required">*</span>
             </label>
-            <input type="text" name="username" id="username"  @bind="RegisterUser.Username" required autofocus />
+            <input type="text" name="username" id="username" @bind="RegisterUser.Username" required autofocus/>
         </div>
         <div class="input-field">
             <label for="email">
@@ -24,13 +27,13 @@
                 <label for="first-name">
                     First Name <span class="required">*</span>
                 </label>
-                <input type="text" name="first-name" id="first-name" @bind="RegisterUser.FirstName" required />
+                <input type="text" name="first-name" id="first-name" @bind="RegisterUser.FirstName" required/>
             </div>
             <div class="input-field">
                 <label for="last-name">
                     Last Name <span class="required">*</span>
                 </label>
-                <input type="text" name="last-name" id="last-name" @bind="RegisterUser.LastName" required />
+                <input type="text" name="last-name" id="last-name" @bind="RegisterUser.LastName" required/>
             </div>
         </div>
         <div class="input-field-group">
@@ -49,7 +52,7 @@
                     Password <span class="required">*</span>
                 </label>
                 <div class="pwd-group">
-                    <input type="password" name="pwd" id="pwd" @bind="Password" required />
+                    <input type="password" name="pwd" id="pwd" @bind="Password" required/>
                     <i class="fa-solid fa-eye" onclick="togglePasswordVisibility(this)"></i>
                 </div>
             </div>
@@ -58,7 +61,7 @@
                     Confirm Password <span class="required">*</span>
                 </label>
                 <div class="pwd-group">
-                    <input type="password" name="conf-pwd" id="conf-pwd" @bind="ConfirmPassword" required />
+                    <input type="password" name="conf-pwd" id="conf-pwd" @bind="ConfirmPassword" required/>
                     <i class="fa-solid fa-eye" onclick="togglePasswordVisibility(this)"></i>
                 </div>
             </div>
@@ -76,11 +79,53 @@
             Already have an account? <a href="/">Login</a>
         </p>
     </div>
+    <div class="flex-column">
+        <span>
+            <p>
+                @RegisterMessage
+            </p>
+        </span>
+    </div>
 </div>
 
 @code
 {
-    private User RegisterUser = new User();
+    private User RegisterUser;
     private string Password;
     private string ConfirmPassword;
+    private string RegisterMessage;
+
+    protected override Task OnInitializedAsync()
+    {
+        RegisterUser = new User();
+        Password = "";
+        ConfirmPassword = "";
+        RegisterMessage = "";
+        return base.OnInitializedAsync();
+    }
+
+    private async Task<bool> CreateAccount()
+    {
+        RegisterUser.Role = Roles.User;
+
+        if (Password.Equals(ConfirmPassword))
+        {
+            RegisterUser.Password = Password;
+            var errorModel = await AuthClient.SignUp(RegisterUser);
+
+            if (errorModel is null)
+            {
+                NavManager.NavigateTo("login");
+            }
+            else
+            {
+                RegisterMessage = "Username already exists!";
+            }
+        }
+        else
+        {
+            RegisterMessage += "Passwords do not match!";
+        }
+        return await Task.FromResult(true);
+    }
 }
