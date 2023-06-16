@@ -4,6 +4,7 @@ public class AuthenticationToken
 {
     public AuthenticationToken()
     {
+        
     }
 
     public AuthenticationToken(string token, int userId, string username, string role)

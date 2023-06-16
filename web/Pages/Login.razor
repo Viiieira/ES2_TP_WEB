@@ -1,9 +1,11 @@
 @page "/"
 @using web.Services.Http.Auth
-@using AuthenticationToken = web.Models.AuthenticationToken
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using web.Models
 @inject IAuthClient AuthClient
-@inject ISessionStorageService StorageService
+@inject ProtectedSessionStorage SessionStorage
 @inject NavigationManager NavManager
+
 
 <!doctype html>
 <html lang="en">
@@ -35,6 +37,7 @@
 
 @code {
     private Models.Login LoginModel = new Models.Login();
+    private AuthenticationToken user = new AuthenticationToken();
 
     private async Task Authenticate()
     {
@@ -44,14 +47,16 @@
 
             if (loginResponse is not null)
             {
-                var user = new AuthenticationToken()
+                user = new AuthenticationToken()
                 {
                     Token = loginResponse.Token,
                     Username = loginResponse.Username,
                     UserId = loginResponse.UserId,
                     Role = loginResponse.Role
                 };
-               
+
+                await SetUserAsync();
+                NavManager.NavigateTo("/welcomepage", true);
             }
             else
             {
@@ -66,17 +71,33 @@
         }
     }
 
-    protected override async Task OnInitializedAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var loggedUser = await .GetItemAsync<AuthenticationToken>("User");
-
-            if (loggedUser is not null)
+            var loadedUser = await LoadStateAsync();
+            if (loadedUser is not null)
             {
-                NavManager.NavigateTo("/welcomepage");
-            } 
+                NavManager.NavigateTo("/welcomepage", true);
+            }
+
+            StateHasChanged();
         }
+    }
+
+    private async Task<AuthenticationToken> LoadStateAsync()
+    {
+        var result = await SessionStorage.GetAsync<AuthenticationToken>("User");
+        if (result.Success && !result.Value.UserId.Equals(0))
+        {
+            return result.Value;
+        }
+        return null;
+    }
+
+    private async Task SetUserAsync()
+    {
+        await SessionStorage.SetAsync("User", user);
     }
 
 }
