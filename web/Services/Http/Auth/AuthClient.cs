@@ -25,4 +25,16 @@ public class AuthClient : IAuthClient
 
         return null;
     }
+
+    public async Task<Error> SignUp(User userModel)
+    {
+        var response = await _httpClient.PostAsJsonAsync<Models.User>(apiUrl + "signup/", userModel);
+        if (response is not null && response.IsSuccessStatusCode)
+        {
+            var loginResponse = await response.Content.ReadFromJsonAsync<Error>();
+            return loginResponse;
+        }
+
+        return null;
+    }
 }
