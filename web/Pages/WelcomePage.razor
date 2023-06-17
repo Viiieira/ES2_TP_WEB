@@ -34,7 +34,8 @@ else
 }
 
 @code {
-
+    private ProfessionalArea[]? areas;
+    
     private async void LogOut()
     {
         await SessionStorage.DeleteStateAsync();
@@ -46,24 +47,17 @@ else
         if (firstRender)
         {
             var loadedUser = await SessionStorage.LoadStateAsync();
-            if (loadedUser is null)
+            if (loadedUser == null || string.IsNullOrEmpty(loadedUser.Token))
             {
                 NavManager.NavigateTo("/Login", true);
+                return;
             }
+
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
+
+            areas = await httpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
 
             StateHasChanged();
         }
     }
-
-    private ProfessionalArea[]? areas;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQiLCJ1c2VybmFtZSI6InF3ZSIsImZpcnN0X25hbWUiOiJxd2UiLCJyb2xlIjoiVVNFUiIsImV4cCI6MTY4NzAwNDMyM30.k_viIzm6LjrLdujk-apW5v_eMNnn45VIAFzPGbbu0UQ";
-        
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        
-        areas = await httpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
-    }
-
 }
