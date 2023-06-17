@@ -1,48 +1,58 @@
 @page "/"
 @using web.Services.Session
+@using web.Components
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
 
 @using System.Net.Http
 @using System.Net.Http.Headers
 @using web.Models
-@inject HttpClient httpClient
+@inject HttpClient HttpClient
 
-<h1 class="text-center">WelcomePage</h1>
-<LogoutButton />
+<section class="container mx-auto py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2>Homepage</h2>
+        <LogoutButton />
+    </div>
 
-<h1 style="margin-top: 3rem;">Listagem das Áreas Profissionais</h1>
-<table>
-    <thead>
-    <tr>
-        <th>Área Profissional</th>
-        <th>Opções</th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (areas == null)
-    {
-        <p>No Professional Areas were found.</p>
-    }
-    else
-    {
-        @foreach (var area in areas)
+    <h2>Listagem das Áreas Profissionais</h2>
+    <table class="table my-5">
+        <thead>
+        <tr class="text-center">
+            <th scope="col">Área Profissional</th>
+            <th scope="col">Opções</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (areas == null)
         {
-            <tr>
-                <td>@area.Area</td>
-                <td>
-                    <a href="#"><i class="fa-solid fa-pencil"></i></a>
-                    <a href="#"><i class="fa-solid fa-trash"></i></a>
-                </td>
-            </tr>
+            <tr><td colspan="2" class="text-muted">No Professional Areas were found.</td></tr>
         }
-    }
-    </tbody>
-</table>
+        else
+        {
+            @foreach (var area in areas)
+            {
+                <tr>
+                    <td>@area.Area</td>
+                    <td class="d-flex justify-content-evenly align-items-center">
+                        <a href="#">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
+                        <a href="#">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
 
-<button class="btn">
-    <i class="fa-solid fa-plus"></i> New Professional Area
-</button>
+    <button class="btn" data-style="primary">
+        <i class="fa-solid fa-plus"></i> New Professional Area
+    </button>
+
+</section>
 
 @code {
     private ProfessionalArea[]? areas;
@@ -65,7 +75,10 @@
             return;
         }
 
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
-        areas = await httpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
+        areas = await HttpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
+        
+        StateHasChanged();
     }
+
 }
