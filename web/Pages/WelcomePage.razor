@@ -3,61 +3,69 @@
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
 
-@using Microsoft.JSInterop
 @using System.Net.Http
 @using System.Net.Http.Headers
 @using web.Models
 @inject HttpClient httpClient
-@inject IJSRuntime JsRuntime
-
 
 <h1 class="text-center">WelcomePage</h1>
-<form @onsubmit="() => LogOut()">
-    <button class="btn" data-style="primary" type="submit">
-        Logout
-    </button>
-</form>
+<LogoutButton />
 
 <h1 style="margin-top: 3rem;">Listagem das Áreas Profissionais</h1>
-@if (areas == null)
-{
-    <p>No Professional Areas were found.</p>
-}
-else
-{
-    <ul>
+<table>
+    <thead>
+    <tr>
+        <th>Área Profissional</th>
+        <th>Opções</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (areas == null)
+    {
+        <p>No Professional Areas were found.</p>
+    }
+    else
+    {
         @foreach (var area in areas)
         {
-            <li>@area.Area</li>
+            <tr>
+                <td>@area.Area</td>
+                <td>
+                    <a href="#"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="#"><i class="fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
         }
-    </ul>
-}
+    }
+    </tbody>
+</table>
+
+<button class="btn">
+    <i class="fa-solid fa-plus"></i> New Professional Area
+</button>
 
 @code {
     private ProfessionalArea[]? areas;
-    
-    private async void LogOut()
-    {
-        await SessionStorage.DeleteStateAsync();
-        NavManager.NavigateTo("/login");
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var loadedUser = await SessionStorage.LoadStateAsync();
-            if (loadedUser == null || string.IsNullOrEmpty(loadedUser.Token))
-            {
-                NavManager.NavigateTo("/Login", true);
-                return;
-            }
-
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
-
-            areas = await httpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
-
+            await LoadProfessionalAreasAsync();
             StateHasChanged();
         }
+    }
+
+    private async Task LoadProfessionalAreasAsync()
+    {
+        var loadedUser = await SessionStorage.LoadStateAsync();
+        if (string.IsNullOrEmpty(loadedUser.Token))
+        {
+            NavManager.NavigateTo("/Login", true);
+            return;
+        }
+
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
+        areas = await httpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
     }
 }

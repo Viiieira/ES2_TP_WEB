@@ -1,0 +1,15 @@
+﻿@using web.Services.Session
+@inject NavigationManager NavManager
+@inject ISession SessionStorage
+
+<button class="btn" data-style="primary" @onclick="LogOutAsync">
+    Logout
+</button>
+
+@code {
+    private async Task LogOutAsync()
+    {
+        await SessionStorage.DeleteStateAsync();
+        NavManager.NavigateTo("/login");
+    }
+}
