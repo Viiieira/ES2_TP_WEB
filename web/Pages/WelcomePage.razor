@@ -87,8 +87,6 @@
         var loadedUser = await SessionStorage.LoadStateAsync();
         if (loadedUser is null)
         {
-            await LoadProfessionalAreasAsync();
-            StateHasChanged();
             NavManager.NavigateTo("/Login", true);
         }
 
