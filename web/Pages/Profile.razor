@@ -1,0 +1,47 @@
+﻿@namespace web.Pages
+
+@page "/profile"
+
+@using web.Services.Session
+@using web.Components
+@using System.Net.Http
+@using System.Net.Http.Headers
+@using web.Models
+
+@inject NavigationManager NavManager
+@inject ISession SessionStorage
+@inject Services.Http.ProfessionalArea ProfessionalArea
+@inject HttpClient HttpClient
+
+<main class="container mx-auto">
+    <NavigationBar />
+    
+    <section class="pt-5">
+        <h2>Edit My Profile</h2>
+        
+        <form class="crud-add-form" @onsubmit="UpdateProfile">
+            <div class="input-field">
+                <label for="name">Name</label>
+                <input type="text" @bind="Name" id="name" required>
+            </div>
+            <button type="submit" class="btn" data-style="primary">
+                <i class="fa-solid fa-plus"></i> Add
+            </button>
+            <p class="text-danger">
+                @ProfileMessage
+            </p>
+        </form>
+    </section>
+</main>
+
+@code {
+
+    private String Name;
+    private string ProfileMessage;
+
+    private void UpdateProfile()
+    {
+        throw new NotImplementedException();
+    }
+
+}

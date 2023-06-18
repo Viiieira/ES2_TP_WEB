@@ -1,0 +1,31 @@
+﻿@namespace web.Components
+
+@using web.Services.Session
+
+@inject NavigationManager NavManager
+@inject ISession SessionStorage
+
+<section class="pt-5 d-flex justify-content-between align-items-center mb-5">
+    <a class="h1 fst-italic" href="/">TalentosIT</a>
+    <div class="d-flex gap-5">
+        <button class="btn" data-style="primary" @onclick="LogOutAsync">
+            Logout
+        </button>
+        <button class="btn" data-style="primary" @onclick="RedirectProfile">
+            Profile
+        </button>
+    </div>
+</section>
+
+@code {
+    private async Task LogOutAsync()
+    {
+        await SessionStorage.DeleteStateAsync();
+        NavManager.NavigateTo("/login");
+    }
+
+    private async Task RedirectProfile()
+    {
+        NavManager.NavigateTo("/profile");
+    }
+}
