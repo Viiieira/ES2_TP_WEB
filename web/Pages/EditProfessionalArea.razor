@@ -2,12 +2,18 @@
 
 @namespace web.Pages
 
+@using web.Services.Session
 @using web.Components
-@using web.Services.Http
+@inject NavigationManager NavManager
+@inject ISession SessionStorage
+@inject Services.Http.ProfessionalArea ProfessionalArea
+
+@using System.Net.Http
+@using System.Net.Http.Headers
 @using web.Models
+@inject HttpClient HttpClient
 
 @inject web.Services.Http.ProfessionalArea ProfessionalAreaService
-@inject NavigationManager NavManager
 
 <main class="container mx-auto">
     <section class="pt-5 d-flex justify-content-between align-items-center mb-5">

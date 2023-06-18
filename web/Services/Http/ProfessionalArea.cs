@@ -1,5 +1,5 @@
-﻿using System.Net.Http.Headers;
-using System.Text.Json;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using web.Models;
 
 namespace web.Services.Http;
@@ -24,25 +24,23 @@ public class ProfessionalArea : IProfessionalArea
         {
             return null;
         }
-        else
-        {
-            var addResponse = await response.Content.ReadFromJsonAsync<Error>();
-            return addResponse;
-        }
+
+        var addResponse = await response.Content.ReadFromJsonAsync<Error>();
+        return addResponse;
     }
-    
-    public async Task<Error?> GetProfessionalAreaById(Models.ProfessionalArea professionalAreaModel, string bearerToken, int id)
+
+    public async Task<Error?> DeleteProfessionalArea(int id, string bearerToken)
     {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-        var response = await _httpClient.PostAsJsonAsync<Models.ProfessionalArea>(ApiUrl + "/{id}", professionalAreaModel);
+    
+        var response = await _httpClient.DeleteAsync($"{ApiUrl}{id}");
+
         if (response.IsSuccessStatusCode)
         {
             return null;
         }
-        else
-        {
-            var addResponse = await response.Content.ReadFromJsonAsync<Error>();
-            return addResponse;
-        }
+
+        var deleteResponse = await response.Content.ReadFromJsonAsync<Error>();
+        return deleteResponse;
     }
 }

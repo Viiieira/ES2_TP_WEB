@@ -28,7 +28,7 @@
             </tr>
             </thead>
             <tbody>
-            @if (areas == null)
+            @if (_areas == null)
             {
                 <tr>
                     <td colspan="2" class="text-muted">No Professional Areas were found.</td>
@@ -36,7 +36,7 @@
             }
             else
             {
-                @foreach (var area in areas)
+                @foreach (var area in _areas)
                 {
                     <tr>
                         <td>@area.Area</td>
@@ -44,7 +44,7 @@
                             <a href="@($"edit-professional-area/{area.Id}")">
                                 <i class="fa-solid fa-pencil"></i>
                             </a>
-                            <a href="@($"remove-professional-area/{area.Id}")">
+                            <a @onclick="() => DeleteProfessionalArea(area.Id)" class="text-danger">
                                 <i class="fa-solid fa-trash"></i>
                             </a>
                         </td>
@@ -62,7 +62,7 @@
             <button type="submit" class="btn" data-style="primary">
                 <i class="fa-solid fa-plus"></i> Add
             </button>
-            <p data-style="error">
+            <p class="text-danger">
                 @ProfessionalAreaMessage
             </p>
         </form>
@@ -71,14 +71,14 @@
 
 @code {
     private string bearerToken;
-    private ProfessionalArea[]? areas;
-    private ProfessionalArea newProfessionalArea;
+    private ProfessionalArea[]? _areas;
+    private ProfessionalArea? _newProfessionalArea;
     private string Area;
     private string ProfessionalAreaMessage;
     
     protected override Task OnInitializedAsync()
     {
-        newProfessionalArea = new ProfessionalArea();
+        _newProfessionalArea = new ProfessionalArea();
         Area = "";
         return base.OnInitializedAsync();
     }
@@ -103,14 +103,14 @@
 
         bearerToken = loadedUser.Token;
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
-        areas = await HttpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
+        _areas = await HttpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
     }
 
     private async Task<bool> CreateProfessionalArea()
     {
-        Console.WriteLine("Area " + newProfessionalArea.Area);
-        newProfessionalArea.Area = Area;
-        var errorModel = await ProfessionalArea.AddProfessionalArea(newProfessionalArea, bearerToken);
+        Console.WriteLine("Area " + _newProfessionalArea.Area);
+        _newProfessionalArea.Area = Area;
+        var errorModel = await ProfessionalArea.AddProfessionalArea(_newProfessionalArea, bearerToken);
 
         if (errorModel != null)
         {
@@ -118,8 +118,18 @@
         }
 
         await LoadProfessionalAreasAsync();
-
         return await Task.FromResult(true);
     }
+
+    private async Task DeleteProfessionalArea(int areaId)
+    {
+        var errorModel = await ProfessionalArea.DeleteProfessionalArea(areaId, bearerToken);
+        Console.WriteLine("areaId: "+areaId+", errorModel: "+errorModel+", bearerToken: "+bearerToken);
+    
+        ProfessionalAreaMessage = errorModel != null ? "Failed to delete the professional area." : "Professional area deleted successfully.";
+    
+        await LoadProfessionalAreasAsync();
+    }
+
 
 }                                                                      

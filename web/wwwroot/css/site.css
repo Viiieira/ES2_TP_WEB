@@ -137,6 +137,7 @@ a:hover,
 a:focus {
     text-decoration: underline;
     color: var(--clr-primary-button);
+    cursor: pointer;
 }
 
 h1,
@@ -170,10 +171,11 @@ textarea:focus-within {
 
 /* Utilitary Classes/Data Attributtes */
 [data-status='success'] {
-    color: var(--clr-success);
+    color: var(--clr-success) !important;
 }
 
-[data-status='error'] {
+[data-status='error'],
+.text-danger {
     color: var(--clr-error);
 }
 
