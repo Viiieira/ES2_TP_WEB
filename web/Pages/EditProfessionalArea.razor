@@ -25,10 +25,10 @@
         <form class="crud-edit-form">
             <div class="input-field">
                 <label for="area">Area</label>
-                <input type="text" class="form-control" id="area" value="@_areas[0].Area">
+                <input type="text" class="form-control" id="area" value="@Area" @oninput="UpdateArea">
             </div>
 
-            <button type="button" class="btn mt-5" data-style="primary">Update</button>
+            <button type="button" class="btn mt-5" data-style="primary" @onclick="UpdateProfessionalArea">Update</button>
         </form>
     }
     else
@@ -68,11 +68,38 @@
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
         var response = await HttpClient.GetFromJsonAsync<ProfessionalArea>($"http://localhost:8000/api/areas/{ProfessionalAreaId}");
 
-    // Handle the single ProfessionalArea object
         if (response != null)
         {
             _areas = new[] { response };
+            Area = _areas[0].Area; // Set the initial value of Area
         }
     }
 
+    private void UpdateArea(ChangeEventArgs e)
+    {
+        Area = e.Value.ToString(); // Update the Area property with the new value from the input
+    }
+
+    private async Task UpdateProfessionalArea()
+    {
+        // Prepare the updated ProfessionalArea object
+        var updatedProfessionalArea = new ProfessionalArea
+        {
+            Id = ProfessionalAreaId,
+            Area = Area
+        };
+
+        // Send the update request to the server
+        var response = await HttpClient.PutAsJsonAsync($"http://localhost:8000/api/areas/{ProfessionalAreaId}", updatedProfessionalArea);
+        if (response.IsSuccessStatusCode)
+        {
+            // Update successful
+            ProfessionalAreaMessage = "Professional area updated successfully.";
+        }
+        else
+        {
+            // Update failed
+            ProfessionalAreaMessage = "Failed to update professional area.";
+        }
+    }
 }
