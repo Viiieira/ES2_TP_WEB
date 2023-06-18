@@ -1,4 +1,5 @@
 using Blazored.SessionStorage;
+using web.Services.Http;
 using web.Services.Http.Auth;
 using web.Services.Session;
 using ISession = web.Services.Session.ISession;
@@ -18,6 +19,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IAuthClient, AuthClient>();
 builder.Services.AddScoped<ISession, Session>();
+builder.Services.AddScoped<ProfessionalArea>();
 
 
 var app = builder.Build();

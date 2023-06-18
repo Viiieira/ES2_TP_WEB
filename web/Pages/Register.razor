@@ -66,10 +66,9 @@
                 </div>
             </div>
         </div>
-        @* <div class="login-response small"> *@
-        @*     <p data-status="success">Login data is correct</p> *@
-        @*     <p data-status="error">Login data is incorrect</p> *@
-        @* </div> *@
+        <div class="login-response small">
+            <p data-status="error">@RegisterMessage</p>
+        </div>
         <button class="btn" data-style="primary" type="submit">
             Create Account
         </button>
@@ -78,13 +77,6 @@
         <p class="small">
             Already have an account? <a href="/">Login</a>
         </p>
-    </div>
-    <div class="flex-column">
-        <span>
-            <p>
-                @RegisterMessage
-            </p>
-        </span>
     </div>
 </div>
 

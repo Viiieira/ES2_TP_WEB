@@ -1,61 +1,87 @@
+@namespace web.Pages
+
 @page "/"
 @using web.Services.Session
 @using web.Components
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
+@inject Services.Http.ProfessionalArea ProfessionalArea
 
 @using System.Net.Http
 @using System.Net.Http.Headers
 @using web.Models
 @inject HttpClient HttpClient
 
-<section class="container mx-auto py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
+<main class="container mx-auto">
+    <section class="pt-5 d-flex justify-content-between align-items-center mb-5">
         <h2>Homepage</h2>
-        <LogoutButton />
-    </div>
+        <LogoutButton/>
+    </section>
 
-    <h2>Listagem das Áreas Profissionais</h2>
-    <table class="table my-5">
-        <thead>
-        <tr class="text-center">
-            <th scope="col">Área Profissional</th>
-            <th scope="col">Opções</th>
-        </tr>
-        </thead>
-        <tbody>
-        @if (areas == null)
-        {
-            <tr><td colspan="2" class="text-muted">No Professional Areas were found.</td></tr>
-        }
-        else
-        {
-            @foreach (var area in areas)
+    <section class="pt-5">
+        <h2>Professional Areas</h2>
+        <table class="table my-5">
+            <thead>
+            <tr>
+                <th scope="col">Area</th>
+                <th scope="col">Options</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (areas == null)
             {
                 <tr>
-                    <td>@area.Area</td>
-                    <td class="d-flex justify-content-evenly align-items-center">
-                        <a href="#">
-                            <i class="fa-solid fa-pencil"></i>
-                        </a>
-                        <a href="#">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                    </td>
+                    <td colspan="2" class="text-muted">No Professional Areas were found.</td>
                 </tr>
             }
-        }
-        </tbody>
-    </table>
+            else
+            {
+                @foreach (var area in areas)
+                {
+                    <tr>
+                        <td>@area.Area</td>
+                        <td class="d-flex align-items-center gap-5 flex-wrap">
+                            <a href="@($"edit-professional-area/{area.Id}")">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            <a href="@($"remove-professional-area/{area.Id}")">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
 
-    <button class="btn" data-style="primary">
-        <i class="fa-solid fa-plus"></i> New Professional Area
-    </button>
-
-</section>
+        <form class="crud-add-form" @onsubmit="CreateProfessionalArea">
+            <div class="input-field">
+                <label for="area">Area</label>
+                <input type="text" @bind="Area" id="area" required>
+            </div>
+            <button type="submit" class="btn" data-style="primary">
+                <i class="fa-solid fa-plus"></i> Add
+            </button>
+            <p data-style="error">
+                @ProfessionalAreaMessage
+            </p>
+        </form>
+    </section>
+</main>
 
 @code {
+    private string bearerToken;
     private ProfessionalArea[]? areas;
+    private ProfessionalArea newProfessionalArea;
+    private string Area;
+    private string ProfessionalAreaMessage;
+    
+    protected override Task OnInitializedAsync()
+    {
+        newProfessionalArea = new ProfessionalArea();
+        Area = "";
+        return base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -75,10 +101,25 @@
             return;
         }
 
+        bearerToken = loadedUser.Token;
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
         areas = await HttpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
-        
-        StateHasChanged();
     }
 
-}
+    private async Task<bool> CreateProfessionalArea()
+    {
+        Console.WriteLine("Area " + newProfessionalArea.Area);
+        newProfessionalArea.Area = Area;
+        var errorModel = await ProfessionalArea.AddProfessionalArea(newProfessionalArea, bearerToken);
+
+        if (errorModel != null)
+        {
+            ProfessionalAreaMessage = "Professional Area already exists!";
+        }
+
+        await LoadProfessionalAreasAsync();
+
+        return await Task.FromResult(true);
+    }
+
+}                                                                      

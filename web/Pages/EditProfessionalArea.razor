@@ -1,0 +1,45 @@
+﻿@page "/edit-professional-area/{ProfessionalAreaId:int}"
+
+@namespace web.Pages
+
+@using web.Components
+@using web.Services.Http
+@using web.Models
+
+@inject web.Services.Http.ProfessionalArea ProfessionalAreaService
+@inject NavigationManager NavManager
+
+<main class="container mx-auto">
+    <section class="pt-5 d-flex justify-content-between align-items-center mb-5">
+        <h2>Edit Professional Area</h2>
+        <LogoutButton/>
+    </section>
+
+    <form class="crud-edit-form">
+        <div class="form-group">
+            <label for="area">Area</label>
+            <input type="text" class="form-control" id="area" @bind="@professionalArea.Area">
+        </div>
+
+        <button type="button" class="btn btn-primary" @onclick="UpdateProfessionalArea">Update</button>
+    </form>
+</main>
+
+@code {
+    private web.Models.ProfessionalArea professionalArea;
+
+    [Parameter]
+    public int ProfessionalAreaId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // professionalArea = await ProfessionalAreaService.GetProfessionalAreaById(ProfessionalAreaId);
+    }
+
+    private async Task UpdateProfessionalArea()
+    {
+        // await ProfessionalAreaService.UpdateProfessionalArea(professionalArea);
+
+        NavManager.NavigateTo("/");
+    }
+}
