@@ -6,42 +6,98 @@
 @using web.Components
 @using System.Net.Http
 @using System.Net.Http.Headers
-@using web.Models
+@using System.Text.Json
 
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
-@inject Services.Http.ProfessionalArea ProfessionalArea
+@using web.Models
 @inject HttpClient HttpClient
 
 <main class="container mx-auto">
     <NavigationBar />
     
     <section class="pt-5">
-        <h2>Edit My Profile</h2>
+        <h2 class="mb-5">My Talents</h2>
         
-        <form class="crud-add-form" @onsubmit="UpdateProfile">
-            <div class="input-field">
-                <label for="name">Name</label>
-                <input type="text" @bind="Name" id="name" required>
-            </div>
-            <button type="submit" class="btn" data-style="primary">
-                <i class="fa-solid fa-plus"></i> Add
-            </button>
-            <p class="text-danger">
-                @ProfileMessage
-            </p>
-        </form>
+        <table class="table my-5">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Price p/ Hour</th>
+                    <th scope="col">Visibility</th>
+                    <th scope="col">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (_talents == null)
+            {
+                <tr>
+                    <td colspan="5" class="text-muted">No Talents were found from you.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var talent in _talents)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(talent));
+                    <tr>
+                        <td>@talent.Name</td>
+                        <td>@talent.IdTalentCategory</td>
+                        <td>@talent.PricePerHour€</td>
+                        <td>@(talent.Private ? "Private" : "Public")</td>
+                        <td class="d-flex align-items-center gap-5 flex-wrap">
+                            <a href="@($"edit-professional-area/{talent.Id}")">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            <a class="text-danger">
+                                @* @onclick="() => DeleteTalent(talent.Id)" *@
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
     </section>
 </main>
 
 @code {
+    private Talent[]? _talents;
+    private string bearerToken;
 
-    private String Name;
-    private string ProfileMessage;
-
-    private void UpdateProfile()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        throw new NotImplementedException();
+        if (firstRender)
+        {
+            await LoadUserTalents();
+            Console.WriteLine(_talents.Length);
+            StateHasChanged();
+        }
     }
+    
+    private async Task LoadUserTalents()
+    {
+        var loadedUser = await SessionStorage.LoadStateAsync();
+        if (string.IsNullOrEmpty(loadedUser.Token))
+        {
+            NavManager.NavigateTo("/Login", true);
+            return;
+        }
 
+        bearerToken = loadedUser.Token;
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
+
+    // Get the user ID from SessionStorage
+        int userId = loadedUser.UserId;
+
+    // Send the GET request to the API endpoint
+        var response = await HttpClient.GetFromJsonAsync<Talent[]>($"http://localhost:8000/api/talents/user/{userId}");
+
+        if (response != null)
+        {
+            _talents = response;
+        }
+    }
 }
