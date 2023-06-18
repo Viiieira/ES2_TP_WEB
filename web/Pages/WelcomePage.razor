@@ -21,22 +21,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        var loadedUser = await SessionStorage.LoadStateAsync();
+        if (loadedUser is null)
         {
-            var loadedUser = await SessionStorage.LoadStateAsync();
-            if (loadedUser is null)
-            {
-                NavManager.NavigateTo("/Login", true);
-            }
-
-            StateHasChanged();
+            NavManager.NavigateTo("/Login", true);
         }
+
+        StateHasChanged();
     }
-
-
-    private async void DeleteAsync()
-    {
-        await SessionStorage.DeleteStateAsync();
-    }
-
 }
