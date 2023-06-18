@@ -40,10 +40,11 @@
             {
                 @foreach (var talent in _talents)
                 {
+                    var talentCategory = _talentCategories.FirstOrDefault(c => c.Id == talent.IdTalentCategory);
                     Console.WriteLine(JsonSerializer.Serialize(talent));
                     <tr>
                         <td>@talent.Name</td>
-                        <td>@talent.IdTalentCategory</td>
+                        <td>@(talentCategory != null ? talentCategory.Name : "")</td>
                         <td>@talent.PricePerHour€</td>
                         <td>@(talent.Private ? "Private" : "Public")</td>
                         <td class="d-flex align-items-center gap-5 flex-wrap">
@@ -65,6 +66,7 @@
 
 @code {
     private Talent[]? _talents;
+    private TalentCategory[]? _talentCategories;
     private string bearerToken;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -89,15 +91,21 @@
         bearerToken = loadedUser.Token;
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
 
-    // Get the user ID from SessionStorage
+        // Get the user ID from SessionStorage
         int userId = loadedUser.UserId;
 
-    // Send the GET request to the API endpoint
-        var response = await HttpClient.GetFromJsonAsync<Talent[]>($"http://localhost:8000/api/talents/user/{userId}");
-
-        if (response != null)
+        // Send the GET request to the API endpoint to load talents
+        var talentsResponse = await HttpClient.GetFromJsonAsync<Talent[]>($"http://localhost:8000/api/talents/user/{userId}");
+        if (talentsResponse != null)
         {
-            _talents = response;
+            _talents = talentsResponse;
+        }
+
+        // Send the GET request to the API endpoint to load talent categories
+        var talentCategoriesResponse = await HttpClient.GetFromJsonAsync<TalentCategory[]>("http://localhost:8000/api/categories");
+        if (talentCategoriesResponse != null)
+        {
+            _talentCategories = talentCategoriesResponse;
         }
     }
 }
