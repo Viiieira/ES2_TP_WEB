@@ -1,22 +1,20 @@
 @namespace web.Pages
 
 @page "/"
+
 @using web.Services.Session
 @using web.Components
-@inject NavigationManager NavManager
-@inject ISession SessionStorage
-@inject Services.Http.ProfessionalArea ProfessionalArea
-
 @using System.Net.Http
 @using System.Net.Http.Headers
 @using web.Models
+
+@inject NavigationManager NavManager
+@inject ISession SessionStorage
+@inject Services.Http.ProfessionalArea ProfessionalArea
 @inject HttpClient HttpClient
 
 <main class="container mx-auto">
-    <section class="pt-5 d-flex justify-content-between align-items-center mb-5">
-        <h2>Homepage</h2>
-        <LogoutButton/>
-    </section>
+    <LogoutButton/>
 
     <section class="pt-5">
         <h2>Professional Areas</h2>

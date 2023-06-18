@@ -5,9 +5,12 @@
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
 
-<button class="btn" data-style="primary" @onclick="LogOutAsync">
-    Logout
-</button>
+<section class="pt-5 d-flex justify-content-between align-items-center mb-5">
+    <a class="h2" href="/">Homepage</a>
+    <button class="btn" data-style="primary" @onclick="LogOutAsync">
+        Logout
+    </button>
+</section>
 
 @code {
     private async Task LogOutAsync()

@@ -16,36 +16,63 @@
 @inject web.Services.Http.ProfessionalArea ProfessionalAreaService
 
 <main class="container mx-auto">
-    <section class="pt-5 d-flex justify-content-between align-items-center mb-5">
-        <h2>Edit Professional Area</h2>
-        <LogoutButton/>
-    </section>
+    <LogoutButton />
 
-    <form class="crud-edit-form">
-        <div class="form-group">
-            <label for="area">Area</label>
-            <input type="text" class="form-control" id="area" @bind="@professionalArea.Area">
-        </div>
+    @if (_areas != null && _areas.Length > 0)
+    {
+        <h3 class="mb-5">Edit Professional Area #@ProfessionalAreaId</h3>
 
-        <button type="button" class="btn btn-primary" @onclick="UpdateProfessionalArea">Update</button>
-    </form>
+        <form class="crud-edit-form">
+            <div class="input-field">
+                <label for="area">Area</label>
+                <input type="text" class="form-control" id="area" value="@_areas[0].Area">
+            </div>
+
+            <button type="button" class="btn mt-5" data-style="primary">Update</button>
+        </form>
+    }
+    else
+    {
+        <p>No professional area found.</p>
+    }
 </main>
 
 @code {
-    private web.Models.ProfessionalArea professionalArea;
+    private string bearerToken;
+    private ProfessionalArea[]? _areas;
+    private string Area;
+    private string ProfessionalAreaMessage;
 
     [Parameter]
     public int ProfessionalAreaId { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // professionalArea = await ProfessionalAreaService.GetProfessionalAreaById(ProfessionalAreaId);
+        if (firstRender)
+        {
+            await LoadProfessionalAreaById();
+            StateHasChanged();
+        }
     }
 
-    private async Task UpdateProfessionalArea()
+    private async Task LoadProfessionalAreaById()
     {
-        // await ProfessionalAreaService.UpdateProfessionalArea(professionalArea);
+        var loadedUser = await SessionStorage.LoadStateAsync();
+        if (string.IsNullOrEmpty(loadedUser.Token))
+        {
+            NavManager.NavigateTo("/Login", true);
+            return;
+        }
 
-        NavManager.NavigateTo("/");
+        bearerToken = loadedUser.Token;
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
+        var response = await HttpClient.GetFromJsonAsync<ProfessionalArea>($"http://localhost:8000/api/areas/{ProfessionalAreaId}");
+
+    // Handle the single ProfessionalArea object
+        if (response != null)
+        {
+            _areas = new[] { response };
+        }
     }
+
 }
