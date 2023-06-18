@@ -2,11 +2,10 @@
 
 @page "/"
 
-@using web.Services.Session
-@using web.Components
 @using System.Net.Http
 @using System.Net.Http.Headers
 @using web.Models
+@using web.Services.Session
 
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
@@ -73,21 +72,27 @@
     private ProfessionalArea? _newProfessionalArea;
     private string Area;
     private string ProfessionalAreaMessage;
-    
+
+    private ProfessionalArea[]? areas;
+
     protected override Task OnInitializedAsync()
     {
         _newProfessionalArea = new ProfessionalArea();
         Area = "";
         return base.OnInitializedAsync();
     }
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        var loadedUser = await SessionStorage.LoadStateAsync();
+        if (loadedUser is null)
         {
             await LoadProfessionalAreasAsync();
             StateHasChanged();
+            NavManager.NavigateTo("/Login", true);
         }
+
+        StateHasChanged();
     }
 
     private async Task LoadProfessionalAreasAsync()
@@ -122,12 +127,12 @@
     private async Task DeleteProfessionalArea(int areaId)
     {
         var errorModel = await ProfessionalArea.DeleteProfessionalArea(areaId, bearerToken);
-        Console.WriteLine("areaId: "+areaId+", errorModel: "+errorModel+", bearerToken: "+bearerToken);
-    
+        Console.WriteLine("areaId: " + areaId + ", errorModel: " + errorModel + ", bearerToken: " + bearerToken);
+
         ProfessionalAreaMessage = errorModel != null ? "Failed to delete the professional area." : "Professional area deleted successfully.";
-    
+
         await LoadProfessionalAreasAsync();
     }
 
 
-}                                                                      
+}
