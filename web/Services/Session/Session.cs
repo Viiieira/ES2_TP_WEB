@@ -1,24 +1,23 @@
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using web.Models;
 
 namespace web.Services.Session;
 
 public class Session : ISession
 {
-    private ProtectedSessionStorage _protectedSessionStorage;
+    private Blazored.SessionStorage.ISessionStorageService _sessionStorage;
 
-    public Session(ProtectedSessionStorage protectedSessionStorage)
+    public Session(Blazored.SessionStorage.ISessionStorageService sessionStorage)
     {
-        _protectedSessionStorage = protectedSessionStorage;
+        _sessionStorage = sessionStorage;
     }
 
 
     public async Task<AuthenticationToken> LoadStateAsync()
     {
-        var result = await _protectedSessionStorage.GetAsync<AuthenticationToken>("User");
-        if (result.Success && !result.Value.UserId.Equals(0))
+        var result = await _sessionStorage.GetItemAsync<AuthenticationToken>("User");
+        if (result is not null)
         {
-            return result.Value;
+            return result;
         }
 
         return null;
@@ -26,11 +25,11 @@ public class Session : ISession
 
     public async Task SetStateAsync(AuthenticationToken user)
     {
-        await _protectedSessionStorage.SetAsync("User", user);
+        await _sessionStorage.SetItemAsync("User", user);
     }
 
     public async Task DeleteStateAsync()
     {
-        await _protectedSessionStorage.DeleteAsync("User");
+        await _sessionStorage.RemoveItemAsync("User");
     }
 }

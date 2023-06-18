@@ -3,6 +3,12 @@
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
 
+@using System.Net.Http
+@using System.Net.Http.Headers
+@using web.Models
+@inject HttpClient httpClient
+@inject IJSRuntime JsRuntime
+
 
 <h1 class="text-center">WelcomePage</h1>
 <form @onsubmit="() => LogOut()">
@@ -11,7 +17,32 @@
     </button>
 </form>
 
+<h1 style="margin-top: 3rem;">Listagem das Áreas Profissionais</h1>
+@if (areas == null)
+{
+    <p>No Professional Areas were found.</p>
+}
+else
+{
+    <ul>
+        @foreach (var area in areas)
+        {
+            <li>@area.Area</li>
+        }
+    </ul>
+}
+
 @code {
+    private ProfessionalArea[]? areas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQiLCJ1c2VybmFtZSI6InF3ZSIsImZpcnN0X25hbWUiOiJxd2UiLCJyb2xlIjoiVVNFUiIsImV4cCI6MTY4NzAwNDMyM30.k_viIzm6LjrLdujk-apW5v_eMNnn45VIAFzPGbbu0UQ";
+
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        areas = await httpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
+    }
 
     private async void LogOut()
     {
