@@ -1,15 +1,14 @@
 @namespace web.Pages
-
 @page "/"
 
+@using web.Services.Session
+@using web.Components
 @using System.Net.Http
 @using System.Net.Http.Headers
-@using web.Models
-@using web.Services.Session
 
 @inject NavigationManager NavManager
 @inject ISession SessionStorage
-@inject Services.Http.ProfessionalArea ProfessionalArea
+@inject Services.Http.IProfessionalArea ProfessionalArea
 @inject HttpClient HttpClient
 
 <main class="container mx-auto">
@@ -68,20 +67,18 @@
 
 @code {
     private string bearerToken;
-    private ProfessionalArea[]? _areas;
-    private ProfessionalArea? _newProfessionalArea;
+    private Models.ProfessionalArea[]? _areas;
+    private Models.ProfessionalArea? _newProfessionalArea;
     private string Area;
     private string ProfessionalAreaMessage;
 
-    private ProfessionalArea[]? areas;
-
     protected override Task OnInitializedAsync()
     {
-        _newProfessionalArea = new ProfessionalArea();
+        _newProfessionalArea = new Models.ProfessionalArea();
         Area = "";
         return base.OnInitializedAsync();
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var loadedUser = await SessionStorage.LoadStateAsync();
@@ -89,9 +86,12 @@
         {
             NavManager.NavigateTo("/Login", true);
         }
-
-        StateHasChanged();
+        else
+        {
+            await LoadProfessionalAreasAsync();
+        }
     }
+
 
     private async Task LoadProfessionalAreasAsync()
     {
@@ -104,7 +104,7 @@
 
         bearerToken = loadedUser.Token;
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
-        _areas = await HttpClient.GetFromJsonAsync<ProfessionalArea[]>("http://localhost:8000/api/areas");
+        _areas = await HttpClient.GetFromJsonAsync<Models.ProfessionalArea[]>("http://localhost:8000/api/areas");
     }
 
     private async Task<bool> CreateProfessionalArea()
@@ -131,6 +131,5 @@
 
         await LoadProfessionalAreasAsync();
     }
-
 
 }

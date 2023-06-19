@@ -4,6 +4,7 @@ using web.Services.Http;
 using web.Services.Http.Auth;
 using web.Services.Session;
 using ISession = web.Services.Session.ISession;
+using ProfessionalArea = web.Services.Http.ProfessionalArea.ProfessionalArea;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -20,7 +21,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IAuthClient, AuthClient>();
 builder.Services.AddScoped<ISession, Session>();
-builder.Services.AddScoped<ProfessionalArea>();
+builder.Services.AddScoped<IProfessionalArea, ProfessionalArea>();
 builder.Services.AddScoped<EditProfessionalArea>();
 
 

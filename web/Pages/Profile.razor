@@ -52,6 +52,7 @@
                                 <i class="fa-solid fa-pencil"></i>
                             </a>
                             <a class="text-danger">
+                                @* TODO:Delete *@
                                 @* @onclick="() => DeleteTalent(talent.Id)" *@
                                 <i class="fa-solid fa-trash"></i>
                             </a>
@@ -91,17 +92,14 @@
         bearerToken = loadedUser.Token;
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loadedUser.Token);
 
-        // Get the user ID from SessionStorage
         int userId = loadedUser.UserId;
 
-        // Send the GET request to the API endpoint to load talents
         var talentsResponse = await HttpClient.GetFromJsonAsync<Talent[]>($"http://localhost:8000/api/talents/user/{userId}");
         if (talentsResponse != null)
         {
             _talents = talentsResponse;
         }
 
-        // Send the GET request to the API endpoint to load talent categories
         var talentCategoriesResponse = await HttpClient.GetFromJsonAsync<TalentCategory[]>("http://localhost:8000/api/categories");
         if (talentCategoriesResponse != null)
         {
